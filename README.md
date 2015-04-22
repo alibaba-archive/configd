@@ -8,9 +8,14 @@ Load your configs, merge into one json file
 
 `configd source1 source2 protocol://source3 ... destination`
 
+### Route pattern
+
+* http/https:  /^http(s)?:\/\//
+* ssh: /^ssh\:\/\//
+* local: /.*/  # All the others
+
 ### TODO
 
-* Accomplish ssh router
 * Accomplish git router
 * Accomplish mongo router
 

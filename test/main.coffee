@@ -2,9 +2,11 @@ should = require 'should'
 fs = require 'fs'
 Promise = require 'bluebird'
 express = require 'express'
+{exec} = require 'child_process'
 Promise.promisifyAll fs
 
 configd = require '../src/configd'
+config = require './config'
 
 app = express()
 
@@ -16,12 +18,36 @@ describe 'Main', ->
 
   it 'should read configs from local sources and merge them into destination', (done) ->
 
-    configd [
+    sources = [
       "#{__dirname}/assets/default.json"
       "#{__dirname}/assets/custom.json"  # Read from json
       "#{__dirname}/assets/ext.js"  # Read from js file
       "http://localhost:3333/http.json"  # Read form http/https server
-    ], "#{__dirname}/dest/merged.json"
+    ]
+
+    mergedConfig =
+      app: 'awesome app'
+      db: 'mongodb://localhost:27017'
+      redis: '127.0.0.1'
+      port: 3333
+
+    if config.ssh
+      $prepare = new Promise (resolve, reject) ->
+        # Upload ssh.json to remote server
+        sources.push "ssh://#{config.ssh}:~/ssh.json"
+        mergedConfig["ssh-key"] = "key"
+        child = exec "scp #{__dirname}/assets/ssh.json #{config.ssh}:~/ssh.json"
+        child.stdout.pipe process.stdout
+        child.on 'exit', (code) ->
+          return reject(new Error("  The upload process exit with a non-zero value!")) unless code is 0
+          resolve()
+    else
+      console.warn "  Set up your ssh server to test ssh router"
+      $prepare = Promise.resolve()
+
+    $prepare.then ->
+
+      configd sources, "#{__dirname}/dest/merged.json"
 
     .then (merged) ->
 
@@ -31,11 +57,7 @@ describe 'Main', ->
 
       merged = JSON.parse merged
 
-      merged.should.eql
-        app: 'awesome app'
-        db: 'mongodb://localhost:27017'
-        redis: '127.0.0.1'
-        port: 3333
+      merged.should.eql mergedConfig
 
       done()
 

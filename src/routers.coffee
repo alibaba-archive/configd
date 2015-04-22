@@ -1,6 +1,7 @@
 fs = require 'fs'
 Promise = require 'bluebird'
 request = require 'request'
+{exec} = require 'child_process'
 requestAsync = Promise.promisify request
 
 module.exports =
@@ -14,6 +15,21 @@ module.exports =
    * Read remote file through ssh
   ###
   ssh: (source) ->
+    # Strip protocol
+    source = source[6..]
+    [server, filename] = source.split(':')
+    new Promise (resolve, reject) ->
+      child = exec """
+      ssh #{server} "cat #{filename}"
+      """
+
+      data = ""
+      child.stdout.on 'data', (_data) ->
+        data += _data
+
+      child.on 'exit', (code) ->
+        return reject(new Error("  The upload process exit with a non-zero value!")) unless code is 0
+        resolve(data)
 
   ###*
    * Read file from git

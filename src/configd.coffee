@@ -77,6 +77,9 @@ configd.route = (pattern, fn) ->
 # Set http router
 configd.route /^http(s)?:\/\//, routers.http
 
+# Set ssh router
+configd.route /^ssh\:\/\//, routers.ssh
+
 # Set default local router
 configd.route /.*/, routers.local
 

@@ -28,3 +28,4 @@ node_modules
 
 /test/dest
 /lib
+/test/config.coffee
