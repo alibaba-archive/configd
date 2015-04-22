@@ -1,9 +1,16 @@
 should = require 'should'
 fs = require 'fs'
 Promise = require 'bluebird'
+express = require 'express'
 Promise.promisifyAll fs
 
 configd = require '../src/configd'
+
+app = express()
+
+app.get '/http.json', (req, res) -> res.send(require("./assets/http.json"))
+
+app.listen 3333
 
 describe 'Main', ->
 
@@ -11,8 +18,9 @@ describe 'Main', ->
 
     configd [
       "#{__dirname}/assets/default.json"
-      "#{__dirname}/assets/custom.json"
-      "#{__dirname}/assets/ext.js"
+      "#{__dirname}/assets/custom.json"  # Read from json
+      "#{__dirname}/assets/ext.js"  # Read from js file
+      "http://localhost:3333/http.json"  # Read form http/https server
     ], "#{__dirname}/dest/merged.json"
 
     .then (merged) ->
@@ -27,6 +35,7 @@ describe 'Main', ->
         app: 'awesome app'
         db: 'mongodb://localhost:27017'
         redis: '127.0.0.1'
+        port: 3333
 
       done()
 
