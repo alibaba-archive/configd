@@ -8,6 +8,8 @@ module.exports = ->
 
   .version pkg.version
 
+  .usage "source1 source2 protocol://source3 ... destination"
+
   .action (args...) ->
     unless args.length > 2
       console.warn chalk.yellow "  At least one source and one destination need to be provided!"
