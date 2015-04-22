@@ -39,8 +39,8 @@ _writeFile = (filename, data) ->
 
   dir = path.dirname filename
 
-  fs.existsAsync dir
-
+  new Promise (resolve, reject) ->
+    fs.exists dir, (exists) -> resolve exists
   .then (exists) ->
     return if exists
     fs.mkdirAsync dir
