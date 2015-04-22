@@ -1,0 +1,5 @@
+{
+  "app": "awesome app",
+  "db": "mongodb://localhost:27017",
+  "redis": false
+}

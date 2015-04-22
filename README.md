@@ -3,4 +3,4 @@ Load your configs, merge into one json file
 
 ### Usage
 
-`configd localpath1 localpath2 protocol://remotepath ... yourapppath`
+`configd source1 source2 protocol://source3 ... destination`
