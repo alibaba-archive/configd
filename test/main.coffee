@@ -23,6 +23,7 @@ describe 'Main', ->
       "#{__dirname}/assets/custom.json"  # Read from json
       "#{__dirname}/assets/ext.js"  # Read from js file
       "http://localhost:3333/http.json"  # Read form http/https server
+      # "git://https://github.com/teambition/configd#HEAD:git.json"
     ]
 
     mergedConfig =

@@ -37,9 +37,9 @@ module.exports =
   git: (source) ->
 
   ###*
-   * Read from mongo database
+   * Read from mongodb
   ###
-  mongo: (source) ->
+  mongodb: (source) ->
 
   ###*
    * Read file from http service
