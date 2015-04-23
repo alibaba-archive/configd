@@ -16,7 +16,6 @@ Load your configs, merge into one json file
 
 ### TODO
 
-* Accomplish git router
 * Accomplish mongo router
 
 ### LICENSE

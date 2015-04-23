@@ -16,6 +16,8 @@ app.listen 3333
 
 describe 'Main', ->
 
+  @timeout 15000
+
   it 'should read configs from local sources and merge them into destination', (done) ->
 
     sources = [
@@ -23,7 +25,7 @@ describe 'Main', ->
       "#{__dirname}/assets/custom.json"  # Read from json
       "#{__dirname}/assets/ext.js"  # Read from js file
       "http://localhost:3333/http.json"  # Read form http/https server
-      # "git://https://github.com/teambition/configd#HEAD:git.json"
+      "git://https://github.com/teambition/configd:test/assets/git.json"
     ]
 
     mergedConfig =
@@ -31,6 +33,7 @@ describe 'Main', ->
       db: 'mongodb://localhost:27017'
       redis: '127.0.0.1'
       port: 3333
+      host: 'github.com'
 
     if config.ssh
       $prepare = new Promise (resolve, reject) ->

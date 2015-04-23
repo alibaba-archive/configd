@@ -16,7 +16,7 @@ _readFile = (source) ->
       return true
 
   unless toString.call(_handler) is '[object Function]'
-    throw new Error("  Source of #{source} does not match any route")
+    throw new Error("Source of #{source} does not match any route")
 
   _handler source
 
@@ -79,6 +79,9 @@ configd.route /^http(s)?:\/\//, routers.http
 
 # Set ssh router
 configd.route /^ssh\:\/\//, routers.ssh
+
+# Set git router
+configd.route /^git\:\/\//, routers.git
 
 # Set default local router
 configd.route /.*/, routers.local

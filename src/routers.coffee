@@ -1,4 +1,6 @@
 fs = require 'fs'
+path = require 'path'
+os = require 'os'
 Promise = require 'bluebird'
 request = require 'request'
 {exec} = require 'child_process'
@@ -24,17 +26,47 @@ module.exports =
       """
 
       data = ""
-      child.stdout.on 'data', (_data) ->
-        data += _data
-
+      child.stdout.on 'data', (_data) -> data += _data
+      child.stderr.pipe process.stderr
       child.on 'exit', (code) ->
-        return reject(new Error("  The upload process exit with a non-zero value!")) unless code is 0
+        return reject(new Error("The upload process exit with a non-zero value!")) unless code is 0
         resolve(data)
 
   ###*
    * Read file from git
   ###
   git: (source) ->
+    # Strip protocal
+    source = source[6..]
+    [origins..., filename] = source.split(':')
+    origin = origins.join ':'
+    [origin, version] = origin.split '#'
+
+    local = path.join os.tmpdir(), 'configd', path.basename(origin)
+    version or= 'master'
+
+    new Promise (resolve, reject) ->
+      fs.exists local, (exists) -> resolve exists
+
+    .then (exists) ->
+      if exists
+        cmd = """
+        cd #{local} && git fetch && git checkout #{version}
+        """
+      else
+        cmd = """
+        git clone #{origin} #{local}
+        """
+
+      new Promise (resolve, reject) ->
+        child = exec cmd
+        child.stdout.pipe process.stdout
+        child.stderr.pipe process.stderr
+        child.on 'exit', (code) ->
+          return reject(new Error("The upload process exit with a non-zero value!")) unless code is 0
+          resolve()
+
+    .then -> fs.readFileAsync path.join(local, filename), encoding: 'UTF-8'
 
   ###*
    * Read from mongodb
