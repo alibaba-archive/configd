@@ -10,9 +10,12 @@ Load your configs, merge into one json file
 
 ### Route pattern
 
-* http/https:  /^http(s)?:\/\//
-* ssh: /^ssh\:\/\//
-* local: /.*/  # All the others
+| Router        | Pattern               | Example                               |
+| ------------- | --------------------- | ------------------------------------- |
+| http/https    | `/^http(s)?:\/\//`    | `http://localhost:3333/http.json`     |
+| ssh           | `/^ssh\:\/\//`        | `ssh://user@host:~/ssh.json`          |
+| git           | `/^git\:\/\//`        | `git://https://github.com/teambition/configd:test/assets/git.json` |
+| local         | `/.*/`                | `./assets/ext.js`                     |
 
 ### TODO
 
