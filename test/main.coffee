@@ -18,7 +18,7 @@ describe 'Main', ->
 
   @timeout 15000
 
-  it 'should read configs from local sources and merge them into destination', (done) ->
+  it 'should read configs from different sources and merge them into destination', (done) ->
 
     sources = [
       "#{__dirname}/assets/default.json"

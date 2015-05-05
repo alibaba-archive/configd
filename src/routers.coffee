@@ -43,7 +43,7 @@ module.exports =
     [origin, version] = origin.split '#'
 
     local = path.join os.tmpdir(), 'configd', path.basename(origin)
-    version or= 'master'
+    version or= 'origin/master'
 
     new Promise (resolve, reject) ->
       fs.exists local, (exists) -> resolve exists
