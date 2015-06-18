@@ -1,6 +1,6 @@
 {
   "name": "configd",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Load your configs, merge into one json file",
   "main": "./lib/configd.js",
   "directories": {
