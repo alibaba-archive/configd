@@ -33,6 +33,8 @@ _readFile = (source) ->
       when '.js' then data = eval(data)
       else throw new Error("File extension #{ext} is not supported now!")
 
+    throw new Error("Source content of #{source} is empty") unless data
+
     data
 
 _writeFile = (filename, data) ->
