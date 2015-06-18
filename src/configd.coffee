@@ -1,10 +1,26 @@
 chalk = require 'chalk'
 Promise = require 'bluebird'
+coffee = require 'coffee-script'
 _ = require 'lodash'
-routers = require './routers'
 path = require 'path'
 fs = require 'fs'
+vm = require 'vm'
 Promise.promisifyAll fs
+
+routers = require './routers'
+
+_eval = (js, options = {}) ->
+  sandbox = vm.createContext()
+  sandbox.exports = exports
+  sandbox.module = exports: exports
+  sandbox.global = sandbox
+  sandbox.require = require
+  sandbox.__filename = options.filename or 'eval'
+  sandbox.__dirname = path.dirname sandbox.__filename
+
+  vm.runInContext js, sandbox
+
+  sandbox.module.exports
 
 _readFile = (source) ->
 
@@ -30,7 +46,8 @@ _readFile = (source) ->
 
     switch ext
       when '.json' then data = JSON.parse(data)
-      when '.js' then data = eval(data)
+      when '.js' then data = _eval data, filename: source
+      when '.coffee' then data = coffee.eval data, filename: source
       else throw new Error("File extension #{ext} is not supported now!")
 
     throw new Error("Source content of #{source} is empty") unless data

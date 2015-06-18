@@ -26,6 +26,7 @@ describe 'Main', ->
       "#{__dirname}/assets/ext.js"  # Read from js file
       "http://localhost:3333/http.json"  # Read form http/https server
       "git://https://github.com/teambition/configd:test/assets/git.json"
+      "#{__dirname}/assets/coffee.coffee"  # Read from coffee script file
     ]
 
     mergedConfig =
@@ -34,6 +35,7 @@ describe 'Main', ->
       redis: '127.0.0.1'
       port: 3333
       host: 'github.com'
+      zen: "I am written in coffee"
 
     if config.ssh
       $prepare = new Promise (resolve, reject) ->
