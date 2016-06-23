@@ -81,11 +81,11 @@ module.exports =
       url: source
       method: 'GET'
       headers: "User-Agent": "configd spider"
-    .spread (res, body) ->
+    .then (res) ->
       unless res.statusCode >= 200 and res.statusCode < 300
         throw new Error("bad request #{res.statusCode} at #{source}")
 
       if res.headers['content-type']?.indexOf('application/json') > -1
-        body = JSON.parse body
+        body = JSON.parse res.body
 
       body
