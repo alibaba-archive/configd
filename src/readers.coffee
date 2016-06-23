@@ -9,7 +9,7 @@ requestAsync = Promise.promisify request
 module.exports =
 
   ###*
-   * Default router, read local files
+   * Default reader, read local files
   ###
   local: (source) -> fs.readFileAsync source, encoding: 'UTF-8'
 
@@ -69,11 +69,6 @@ module.exports =
     .then -> fs.readFileAsync path.join(local, filename), encoding: 'UTF-8'
 
   ###*
-   * Read from mongodb
-  ###
-  mongodb: (source) ->
-
-  ###*
    * Read file from http service
   ###
   http: (source) ->
@@ -81,11 +76,11 @@ module.exports =
       url: source
       method: 'GET'
       headers: "User-Agent": "configd spider"
-    .spread (res, body) ->
+    .then (res) ->
       unless res.statusCode >= 200 and res.statusCode < 300
         throw new Error("bad request #{res.statusCode} at #{source}")
 
       if res.headers['content-type']?.indexOf('application/json') > -1
-        body = JSON.parse body
+        body = JSON.parse res.body
 
       body
