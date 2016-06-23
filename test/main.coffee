@@ -48,7 +48,7 @@ describe 'Main', ->
           return reject(new Error("  The upload process exit with a non-zero value!")) unless code is 0
           resolve()
     else
-      console.warn "  Set up your ssh server to test ssh router"
+      console.warn "  Set up your ssh server to test ssh reader"
       $prepare = Promise.resolve()
 
     $prepare.then ->

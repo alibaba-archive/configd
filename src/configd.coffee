@@ -1,53 +1,44 @@
 chalk = require 'chalk'
 Promise = require 'bluebird'
-coffee = require 'coffee-script'
+
 _ = require 'lodash'
 path = require 'path'
 fs = require 'fs'
-vm = require 'vm'
 Promise.promisifyAll fs
 
-routers = require './routers'
+readers = require './readers'
+parsers = require './parsers'
 
-_eval = (js, options = {}) ->
-  sandbox = vm.createContext()
-  sandbox.exports = exports
-  sandbox.module = exports: exports
-  sandbox.global = sandbox
-  sandbox.require = require
-  sandbox.__filename = options.filename or 'eval'
-  sandbox.__dirname = path.dirname sandbox.__filename
+_readers = []
+_parsers = []
 
-  vm.runInContext js, sandbox
+_readFile = (filename) ->
 
-  sandbox.module.exports
+  _reader = readers.local
+  _parser = null
 
-_readFile = (source) ->
-
-  _handler = routers.local
-
-  configd._routes.some (route) ->
-    if source.match route.route
-      _handler = route.handler
+  configd.readers.some (reader) ->
+    if filename.match reader.pattern
+      _reader = reader.handler
       return true
 
-  _handler source
+  configd.parsers.some (parser) ->
+    if filename.match parser.pattern
+      _parser = parser.handler
+      return true
+
+  _reader filename
 
   .then (data) ->
 
     return data unless toString.call(data) is '[object String]'
 
-    # Parse the string format data
-    # Guess format from ext name
-    ext = path.extname(source).toLowerCase()
+    unless toString.call(_parser) is '[object Function]'
+      throw new Error("Can not find parser for #{filename}")
 
-    switch ext
-      when '.json' then data = JSON.parse(data)
-      when '.js' then data = _eval data, filename: source
-      when '.coffee' then data = coffee.eval data, filename: source
-      else throw new Error("File extension #{ext} is not supported now!")
+    data = _parser(data, filename: filename)
 
-    throw new Error("Source content of #{source} is empty") unless data
+    throw new Error("Content is empty! #{filename}") unless data
 
     data
 
@@ -61,8 +52,7 @@ _writeFile = (filename, data) ->
     return if exists
     fs.mkdirAsync dir
 
-  .then ->
-    fs.writeFileAsync filename, data
+  .then -> fs.writeFileAsync filename, data
 
 ###*
  * Start define primary configd process
@@ -83,23 +73,27 @@ configd = (sources, destination, options) ->
 
     .then -> config
 
-configd._routes = []
-
-configd.route = (pattern, fn) ->
-  configd._routes.push
-    route: pattern
+configd.route = configd.reader = (pattern, fn) ->
+  _readers.push
+    pattern: pattern
     handler: fn
 
-# Set http router
-configd.route /^http(s)?:\/\//, routers.http
+configd.parser = (pattern, fn) ->
+  _parsers.push
+    pattern: pattern
+    handler: fn
 
-# Set ssh router
-configd.route /^ssh\:\/\//, routers.ssh
+Object.defineProperty configd, 'readers', get: -> _readers
+Object.defineProperty configd, 'parsers', get: -> _parsers
 
-# Set git router
-configd.route /^git\:\/\//, routers.git
+# Set reader patterns
+configd.reader /^http(s)?:\/\//, readers.http
+configd.reader /^ssh\:\/\//, readers.ssh
+configd.reader /^git\:\/\//, readers.git
 
-# Export build-in routers
-configd.routers = routers
+# Set parser patterns
+configd.parser /\.json$/i, parsers.json
+configd.parser /\.js$/i, parsers.js
+configd.parser /\.coffee$/i, parsers.coffee
 
 module.exports = configd

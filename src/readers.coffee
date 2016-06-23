@@ -9,7 +9,7 @@ requestAsync = Promise.promisify request
 module.exports =
 
   ###*
-   * Default router, read local files
+   * Default reader, read local files
   ###
   local: (source) -> fs.readFileAsync source, encoding: 'UTF-8'
 
@@ -67,11 +67,6 @@ module.exports =
           resolve()
 
     .then -> fs.readFileAsync path.join(local, filename), encoding: 'UTF-8'
-
-  ###*
-   * Read from mongodb
-  ###
-  mongodb: (source) ->
 
   ###*
    * Read file from http service
