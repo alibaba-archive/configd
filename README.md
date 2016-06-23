@@ -4,24 +4,30 @@ Load your configs, merge into one json file
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 
-### Usage
+## Usage
 
 `configd source1 source2 protocol://source3 ... destination`
 
-### Route pattern
+## Readers pattern
 
-| Router        | Pattern               | Example                               |
-| ------------- | --------------------- | ------------------------------------- |
-| http/https    | `/^http(s)?:\/\//`    | `http://localhost:3333/http.json`     |
-| ssh           | `/^ssh\:\/\//`        | `ssh://user@host:~/ssh.json`          |
-| git           | `/^git\:\/\//`        | `git://https://github.com/teambition/configd:test/assets/git.json` |
-| local         | `/.*/`                | `./assets/ext.js`                     |
+| Reader     | Pattern            | Example                                                            |
+|:-----------|:-------------------|:-------------------------------------------------------------------|
+| http/https | `/^http(s)?:\/\//` | `http://localhost:3333/http.json`                                  |
+| ssh        | `/^ssh\:\/\//`     | `ssh://user@host:~/ssh.json`                                       |
+| git        | `/^git\:\/\//`     | `git://https://github.com/teambition/configd:test/assets/git.json` |
+| local      | `/.*/`             | `./assets/ext.js`                                                  |
 
-### TODO
+## Changelog
+
+### 0.1.0
+
+- Add plugin support
+
+## TODO
 
 * Accomplish mongo router
 
-### LICENSE
+## LICENSE
 
 MIT
 

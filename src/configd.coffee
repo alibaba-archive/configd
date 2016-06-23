@@ -4,6 +4,7 @@ _ = require 'lodash'
 path = require 'path'
 fs = require 'fs'
 Promise.promisifyAll fs
+globAsync = Promise.promisify(require('glob'))
 
 readers = require './readers'
 parsers = require './parsers'
@@ -27,7 +28,6 @@ _readFile = (filename) ->
       return true
 
   _reader(filename).then (data) ->
-
     return data unless toString.call(data) is '[object String]'
 
     unless toString.call(_parser) is '[object Function]'
@@ -39,6 +39,27 @@ _readFile = (filename) ->
 
     data
 
+_autoloadPlugins = (configd) ->
+  return Promise.resolve() if configd._autoloaded
+
+  Promise.reduce module.paths, (plugins, dirname) ->
+    globAsync("#{dirname}/configd-*").then (_plugins) -> plugins.concat(_plugins)
+  , []
+
+  .then (plugins) ->
+    # Don't repeat load same plugins
+    plugins.forEach (pluginPath) ->
+      basename = path.basename(pluginPath)
+      unless configd._plugins[basename]
+        try
+          plugin = require(pluginPath)
+          plugin(configd)
+          configd._plugins[basename] = plugin
+        catch err
+          console.warn "Load plugin #{pluginPath} error: #{err.message}"
+
+  .then -> configd._autoloaded = true
+
 ###*
  * Start define primary configd process
  * @param  {Array} sources - An array of sources
@@ -47,9 +68,15 @@ _readFile = (filename) ->
 ###
 configd = (sources, options) ->
 
-  Promise.all sources.map _readFile
+  _autoloadPlugins configd
 
-  .then (configs) -> configs.reduce (x, y) -> _.merge x, y
+  .then ->
+    Promise.reduce sources, (mergedConfig, sourceName) ->
+      _readFile(sourceName).then (data) -> _.merge mergedConfig, data
+    , {}
+
+configd._autoloaded = false
+configd._plugins = {}
 
 configd.route = configd.reader = (pattern, fn) ->
   _readers.push
