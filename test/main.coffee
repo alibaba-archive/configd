@@ -51,20 +51,8 @@ describe 'Main', ->
       console.warn "  Set up your ssh server to test ssh reader"
       $prepare = Promise.resolve()
 
-    $prepare.then ->
+    $prepare.then -> configd sources
 
-      configd sources, "#{__dirname}/dest/merged.json"
+    .then (merged) -> merged.should.eql mergedConfig
 
-    .then (merged) ->
-
-      fs.readFileAsync "#{__dirname}/dest/merged.json", encoding: 'UTF-8'
-
-    .then (merged) ->
-
-      merged = JSON.parse merged
-
-      merged.should.eql mergedConfig
-
-      done()
-
-    .catch done
+    .nodeify done

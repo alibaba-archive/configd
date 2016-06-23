@@ -1,4 +1,3 @@
-chalk = require 'chalk'
 Promise = require 'bluebird'
 
 _ = require 'lodash'
@@ -27,9 +26,7 @@ _readFile = (filename) ->
       _parser = parser.handler
       return true
 
-  _reader filename
-
-  .then (data) ->
+  _reader(filename).then (data) ->
 
     return data unless toString.call(data) is '[object String]'
 
@@ -42,36 +39,17 @@ _readFile = (filename) ->
 
     data
 
-_writeFile = (filename, data) ->
-
-  dir = path.dirname filename
-
-  new Promise (resolve, reject) ->
-    fs.exists dir, (exists) -> resolve exists
-  .then (exists) ->
-    return if exists
-    fs.mkdirAsync dir
-
-  .then -> fs.writeFileAsync filename, data
-
 ###*
  * Start define primary configd process
  * @param  {Array} sources - An array of sources
- * @param  {String} destination - Destination to write config data
  * @param  {Object} options - Other options
  * @return {Promise} configs - Merged configs
 ###
-configd = (sources, destination, options) ->
+configd = (sources, options) ->
 
   Promise.all sources.map _readFile
 
-  .then (configs) ->
-
-    config = configs.reduce (x, y) -> _.merge x, y
-
-    _writeFile destination, JSON.stringify(config, null, 2)
-
-    .then -> config
+  .then (configs) -> configs.reduce (x, y) -> _.merge x, y
 
 configd.route = configd.reader = (pattern, fn) ->
   _readers.push
