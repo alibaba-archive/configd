@@ -43,7 +43,7 @@ module.exports =
     [origin, version] = origin.split '#'
 
     local = path.join os.tmpdir(), 'configd', path.basename(origin)
-    version or= 'origin/master'
+    version or= 'master'
 
     new Promise (resolve, reject) ->
       fs.exists local, (exists) -> resolve exists
@@ -51,7 +51,7 @@ module.exports =
     .then (exists) ->
       if exists
         cmd = """
-        cd #{local} && git fetch && git checkout #{version}
+        cd #{local} && git fetch --all && git reset --hard origin/#{version}
         """
       else
         cmd = """
